@@ -1640,25 +1640,6 @@ MyClass::instance().do_something();
 
 ```
 
-
-```
-
-
-```
-
-
-```
-
-
-```
-
-
-```
-
-
-```
-
-
 ```
 Singleton → Observer → Strategy → Factory
      ↓
@@ -1670,11 +1651,141 @@ Proxy → State → Composite
 
 
 
+## Namespaces
+
+İsimalanı, global isimalanında oluşturabileceğimiz ve isimlerin birbirleriyle karışmasını engellemeye yönelik ve bu isimleri birarada tutan bir paket/container gibi bir yapı.
+
+İsimalanında bildirilen isimler özel bir scope ait.Bu namespace scope.
+İsimlerin birbirleriyle çakışmasını engellemeye yönelik bir mekanizma bu.
+
+C de olsaydı, include edilen kütüphaneden gelen isimler global isimalanına enjekte edilecekti ve bunların çakışma riski var. Bir global alan var ve herkes oraya yazıyordu.
+
+C++ ta ise bu isimleri doğrudan enjekte etmek yerine biz bu namespacelere boşaltıyoruz. isimler aynı olsa namespace ler farklı olsa bile
+isimler çakışmıyor.
+
+Pc lerdeki farklı dizinlerde varolan aynı isimli dosyalar gibi düşün.
+
+c:\cdr\ali.txt
+c:\cdr\folder\ali.txt   dosyalar aynı isimli ama çakışma yok.Aynı isimalanları/namespaces gibi.
+
+Artık file scope diye birşey yok.
+Global namespace var. tüm namespacelerde bunun içerisinde.
+Nested namespacelerde olabilir. Erişim ise scope resolution :: operatörleri ile yapılıyor. 
+
+Tüm standart kütüphaneden egelen isimler ismi std olan bir namespace içinde.
+Genellikle namespace kullanmayacağız ama kullandığımız kütüphaneler namespace içinde olduğundan bilmemeiz gerekiyor.
+Bazende bizim yazmamız gerekecek.
+
+SENTAKS
+
+```cpp
+namespace Nec{
+
+}
+
+// Unnamed Namespace
+namespace {
+
+}
+
+```
+
+Sonda ; yok. Koyarsakta hata olmaz çünkü null statement olmuş olur.Ama standart sentaksta yok.
+
+Namespace içinde func tanımı, değişken tanımı class tanımı... herşey mümkün.
+
+Dikkat aşağıdaki a ismi aynı scopeta iki defa kullanılmış.Farklı namespacelerde hata olmazdı.
+
+```cpp
+namespace nec{
+	int a = 10;
+	double a = 20.2;   
+}
 ```
 
 
+```cpp
+namespace nec{
+	int a = 10;
+}
+
+namespace ali{
+	double a = 20.2;   // LEGAL. GEÇERLİ ARTIK.
+}
+```
+
+Farklı scopelar func overloading olmaz:
+
+```cpp
+namespace Ali{
+	void func(int);
+}
+
+namespace Nec{
+	void func(double); // Overloading yok.
+}   
+```
+
+Aynı isimli isimalanları birleşir farklı yerde tanımlanmış olsalar bile.
+
+```cpp
+namespace Nec{
+	void func(int);
+}
+
+namespace Nec{
+	void func(double); // Func OVerloading burası
+	}
+```
+
+İsim alanındaki ismi bulmak için scope resolution operatörü kullanılır.
+
+```cpp
+int g = 20;
+
+namespace Nec{
+	int g =10;
+}
+
+int main()
+{
+	int g = 30;
+
+	g;        değeri 30 olan ilk bulunan g bu.
+	nec::g;   Bu şekilde nec namespace e erişilir.
+	::g;      Buda global namespacede arar.
+}
+
+```
+
+NOT: NAMESPACE LERDE PUBLIV PRIVATE PROTECTED YOK.
+
+
+
+```cpp
+namespace Nec{
+	namespace Ali{
+			namespace Veli{
+				int x = 10;
+			}
+	}
+
+}
+
+int main()
+{
+	Nec::Ali::Veli::x = 23;  // bu şekilde erişilir. Çok yaygın std library kullanıyor.
+}
+
 ```
 
 
+```cpp
 
+```
+
+
+```cpp
+
+```
 
