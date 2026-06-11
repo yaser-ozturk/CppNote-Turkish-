@@ -7,17 +7,17 @@ a = i++ önce i nin degerini a'ya ta sonra i yi 1 arttır
 a = ++i önce i yi 1 arttır sonra i nin degerini ata
 
 Logical operatörler:
-    && (and)  orn 5 > 3 && 5 < 10 = true
-    || (or)   orn 5 > 3 || 5 < 10 = true
-    ! (not)   orn !(5 > 3) = false
+&& (and)  orn 5 > 3 && 5 < 10 = true
+|| (or)   orn 5 > 3 || 5 < 10 = true
+! (not)   orn !(5 > 3) = false
 
 Bitwise operatörler:
-    & (and)  orn 1010 & 1100 = 1000 5 & 6 = 4
-    | (or)   orn 1010 | 1100 = 1110 5 | 6 = 7
-    ^ (xor)  orn 1010 ^ 1100 = 0110 5 ^ 6 = 3
-    ~ (not)  orn ~1010 = 0101 ~5 = -6 ikiye tümleyen
-    << (left shift)  orn 1010 << 1 = 10100 5 << 1 = 10 sayırı 2 katına çıkarır
-    >> (right shift) orn 1010 >> 1 = 0101 5 >> 1 = 2 sayıyı 2 ye böler
+& (and)  orn 1010 & 1100 = 1000 5 & 6 = 4
+| (or)   orn 1010 | 1100 = 1110 5 | 6 = 7
+^ (xor)  orn 1010 ^ 1100 = 0110 5 ^ 6 = 3
+~ (not)  orn ~1010 = 0101 ~5 = -6 ikiye tümleyen
+<< (left shift)  orn 1010 << 1 = 10100 5 << 1 = 10 sayırı 2 katına çıkarır
+>> (right shift) orn 1010 >> 1 = 0101 5 >> 1 = 2 sayıyı 2 ye böler
 
 ## Loops:
 
@@ -42,7 +42,7 @@ do
 
 
 
-## Functions 
+## Functions
 
 ```cpp
 
@@ -59,9 +59,9 @@ dönüşdegeri fonksiyonAdi(parametreler)
 
 C++'ta lambda fonksiyonları, anonim (ismi olmayan) fonksiyonlar yazmak için kullanılır ve genellikle kısa, geçici işlemler için tercih edilir.
 
-captureedList 
-	`&` → Dış değişkenlere referansla erişim sağlar (değiştirilebilir).  
-	`=` → Dış değişkenleri kopyalayarak kullanır (orijinali değişmez).
+captureedList
+`&` → Dış değişkenlere referansla erişim sağlar (değiştirilebilir).  
+`=` → Dış değişkenleri kopyalayarak kullanır (orijinali değişmez).
 
 ```cpp
 auto isim = [captureedList](parametreler) 
@@ -80,8 +80,8 @@ Normalde bir fonksiyon çağrıldığında:
 
 Bu işlem küçük fonksiyonlar için bile **belli bir maliyet** yaratır. `inline` ile derleyiciye **fonksiyon çağırmak yerine kodu doğrudan çağrıldığı yere yapıştır** demiş oluruz.
 
--  Küçük ve sık kullanılan fonksiyonlarda (`getter`, `setter`, matematiksel işlemler vb.)  
--  Döngüler içinde sık çağrılan kısa fonksiyonlarda  
+-  Küçük ve sık kullanılan fonksiyonlarda (`getter`, `setter`, matematiksel işlemler vb.)
+-  Döngüler içinde sık çağrılan kısa fonksiyonlarda
 -  Makro yerine **type-safe** ve **debug-friendly** bir alternatif olarak
 
 ```cpp
@@ -101,8 +101,8 @@ int main() {
 ```
 
 `are(5)` çağrıldığında, `return 5 * 5;` şeklinde doğrudan kod içine yerleştirilir.
- - Daha  hızlı çalışır 
- 
+- Daha  hızlı çalışır
+
 ## Data Type
 
 int 4 byte
@@ -151,7 +151,7 @@ int main() {
 ```
 
 
-### Struct : 
+### Struct :
 
 ```cpp
 struct Ogrenci
@@ -274,7 +274,7 @@ int main() {
 
 ```
 
-## Pointer and Referances 
+## Pointer and Referances
 
 ```cpp
 int a = 1;
@@ -335,7 +335,7 @@ std::cout << **pp;  // Çıktı: 42
 
 ```
 
-### std::unique_ptr 
+### std::unique_ptr
 
 **Bellek sızıntısını önler**. `delete` çağırmaya gerek yoktur, çünkü otomatik temizlenir.
 
@@ -394,15 +394,15 @@ Refrerences :
 C++ programı çalışırken bellek **farklı bölgelere ayrılır**. Ana bölümler:
 
 1. Code Segment (Kod Segmenti)
-   - Derlenmiş **makine kodlarını (binary kodlar)** içerir.
-   -  `main()` ve diğer fonksiyonlar burada bulunur.
-   -  **Salt okunur (read-only)** olup, değiştirilemez.
+    - Derlenmiş **makine kodlarını (binary kodlar)** içerir.
+    -  `main()` ve diğer fonksiyonlar burada bulunur.
+    -  **Salt okunur (read-only)** olup, değiştirilemez.
 1. **Data Segment (Veri Segmenti)**
     - `.data` (Başlangıç değeri atanmış global değişkenler)
     - `.bss` (Başlangıç değeri atanmamış global değişkenler)
 2. **Stack Segment (Yığın Bellek)**
 3. Heap Segment (Öbek Bellek)
-### Stack memory 
+### Stack memory
 
 **Derleme (compile) zamanında** tahsis edilir.
 
@@ -453,9 +453,9 @@ void functionExample() {
 ```
 
 
-## Life Time 
+## Life Time
 
- ### **Static Storage Duration (Statik Depolama Süresi)**
+### **Static Storage Duration (Statik Depolama Süresi)**
 
 - `static int a;` veya `int a;` (küresel değişken) olarak tanımlanan değişkenler programın başında bellekte yer alır ve program bitene kadar yaşamaya devam eder.
 - Bellekte **data segment** (BSS veya Data bölümü) içinde saklanır.
@@ -480,7 +480,7 @@ int main() {
 
 ```
 
-  ### **Thread Storage Duration (İş Parçacığı Depolama Süresi)**
+### **Thread Storage Duration (İş Parçacığı Depolama Süresi)**
 
 - **C++11** ile gelen `thread_local` anahtar kelimesi kullanılarak tanımlanır.
 - Her **thread (iş parçacığı)** kendi kopyasını oluşturur.
@@ -551,7 +551,7 @@ Raw pointers
             // Heap'te 100 elemanlı bir int dizisi oluşturuluyor
             // shared_ptr otomatik bellek yönetimi sağlıyor
 
-    
+
 Unique Pointer (unique_ptr)
 
 
@@ -761,12 +761,12 @@ Exeption Handling:
 
     Exit :
         ile koddan çıkılır retun 0 gibi
-        
+
 
 
 ---------------------------------------------------------------------------------
 
-Standart Libraries : 
+Standart Libraries :
 
     <CHRONO> : zaman işlemleri için kullanılır. zaman süresü tutar
 
@@ -1146,34 +1146,6 @@ Conteiners :
 
         std::list<int> list = {1, 2, 3, 4, 5}; // List of integers
         std::list<std::string> names = {"Alice", "Bob", "Charlie"}; // List of strings
-    
-        
-
-
-
-                
-
-
-
-
-    
-
-
-                
-
-        
-
-        
-
-
-
-        
-        
-
-
-
-
-    
 
 
 
@@ -1181,9 +1153,37 @@ Conteiners :
 
 
 
-        
 
-            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1285,7 +1285,7 @@ Protected belirteci ise taban sınıfından ve türetilmiş sınıftan bu özell
 Kalıtım Belirteci public ise :
 Base'in private degiskeni asla derived nesneden erişilemez.
 
-Kalıtım Belirteci protected ise (private olarak alsanda aynı) : 
+Kalıtım Belirteci protected ise (private olarak alsanda aynı) :
 
 Base'nin taban sınıfındaki public bile mainden çagrılamaz.
 Derived içinden Basenin protected ve public özelliklere de erişilebilir ama private yine olmaz
@@ -1344,7 +1344,7 @@ int main() {
 }
 ```
 
-NOT : 
+NOT :
 
 std::move() :
 
@@ -1475,9 +1475,206 @@ Tip degistirme :
 ```
 
 
+## Operator overloading
 
-#### Ozel Metodların Kalıtımda kullanımı
+C++ dilinde bir sınıf nesnesi bir operatörün operandı olduğunda derleyici dilin kurallarına göre operatörün operandı olmuş sınıf nesnesi ifadesini bir fonksiyon çağrısına dönüştürüyoryani ortada doğrudan fonksiyon çağrı operatörü yok ama kodun anlamı derleyicinin bir fonksiyona çağrı yapması bunlara operator functions deniliyor
+
+a + b ifadesi olsun a ve b bir sınıf türünden nesneler olsun bu durumda tanımlanmış bir fonksiyon varsa derleyici a + b ifadesini bir operatör fonksiyonuna yapılan çağrı ifadesine dönüştürüyor peki burada çağırılan fonksiyon global function mı yoksa sınıfın non-static member functionı mı ? HER İKİSİDE OLABİLİR
+
+SORU:run time'a yönelik bir mekanizma mı compiler time'a mı? compile time'a yönelik bir mekanizma çünkü derleyici hangi fonksiyonun çağırıldığını derleme zamanında anlıyor
+
+- operatör fonksiyonları static member function olamaz.
+- operatör overloadingten faydalanabilmemiz için intuitive olmamız gerekiyor.
+
+1)operatör overloadingten bahsedebilmemiz için operatörün operandı olan ifadelerden en az birinin bir sınıf türünden yada bir enumaration türünden olması gerekiyor
+
+2)overload edilecek operatörün C++ dilinin operatör kümesinde olması gerekiyor
+örneğin @ C++ dilinin operatör kümesinde yok
+
+3)operatör overloading fonksiyonlarını istediğimiz gibi isimlendiremiyoruz hangi operatörü overload ediyorsak onu belirtmemiz gerekiyor operator+ ,operator[] gibi
+
+4)dilin bütün operatörleri overload edilemiyor bazı operatörler için overloading mekanizması yasaklanmış
+-  sizeof
+-  :: scope resolution operatörü
+-  . member access operatörü
+-  .* pointer to member operatörü
+-  ? : conditional operatörü
+-  ->* pointer to member operatörü
+- typeid
+
+5)operatör fonksiyonlarının bazıları free function olarak tanımlanamıyor member function olmak zorundalar
+-  () function call operatörü
+-  [] subscript operatörü
+-   -> member access operatörü
+-  = assignment operatörü
+- type cast operatörleri
+
+6)tüm operatör fonksiyonları istisnasız isimleriylede çağırılabilir
+```cpp
+class Myclass{};
+
+int main()
+{
+Myclass m1,m2;
+m1.operator=(m2); // m1 = m2 
+}
+
+```
+
+
+7)function call () operatörü hariç diğer operatör overloading mekanizmasında kullanılan fonksiyonlar default argument alamazlar
+
+8)operatör overloading mekanizmasında ki operatörlerin (arity) değiştirilemez yani operatörün unary yada binary olması
+
+#### Binary operators
+
+- x * y // binary bir operatörü olduğu için buna uygun sentaksla overload edilecek bu overloading free functionla yapılıyorsa bu durumda
+
+- çarpma oepratörünün sol operandı ve sağ operandıda o fonksiyonun parametrelerine argüman olarak gönderiliyor
+
+- derleyici x * y ifadesini operator*(x,y) ifadesine dönüştürücek bu global fonksiyonun 2 tane parametre değişkeni olmalı bunun dışında başka bir parametre olursa sentaks hatası olur derleyici sol operandı 1.ci parametresini sağ operandı 2.ci parametresine geçiyor
+
+```cpp
+class Matrix{
+public:
+
+};
+
+bool operator<(const Matrix& ,const Matrix&)
+
+```
+
+fakat binary operatörünü overload edicek fonksiyon member function ise o member function binary operatörünün sol operandı için çağırılıyor,
+
+this pointerı sol operand olan nesnenin adresi x > y ifadesini derleyici x.operator>(y) ifadesine dönüştürüyor bu functionlar tek parametre olmak zorundalar bunun dışında
+başka bir parametre olursa sentaks hatası olur
+```cpp
+class String{
+public:
+bool operator<(const String&) const;
+}
+
+```
+
+
+#### Unary operators
+!ptr// unary opeartör olduğu için buna uygun sentaksla yazılması gerek
+
+unary operator olan ifade global function ise derleyici operatör ifadesini operator!(ptr) ifadesine yapılan bir çağrıya dönüştürücek operatörün operandı olan sınıf nesnesinide
+bu fonksiyona yapılan çağrıda argüman olarak kullanıcak tek parametre almak zorundalar bunun dışında sentaks hatası olur
+```cpp
+class SmartPtr{};
+bool operator!(const SmartPtr&)const;
+```
+
+
+unary operator bir member function ise parametresi olmaz zaten o nesne için çağırılır.
+```cpp
+class SmartPtr{
+public:
+bool operator!() const;
+};
+```
 
 
 
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+SORU:sentaks hatası mı değil mi?
+
+```cpp
+class Myclass
+{
+public:
+Myclass operator+(); // sentaks hatası değil çünkü bu toplama operatörünü overload etmiyor sign operatörünü overload ediyor
+Myclass operator+(Myclass) const; // toplama operatörünü overload ediyor
+}
+
+```
+
+
+## Paterns
+
+#### Singleton patern
+
+Bir classtan sadece bir instance yapmanı sağlar . Başka bir örnke üretemezsin.
+
+-  You can be sure that a class has only a single instance.
+-  You gain a global access point to that instance.
+-  The singleton object is initialized only when it’s requested for the first time.
+
+![[Screenshot from 2026-06-11 14-59-15.png]]
+
+Ornek kod.
+
+```cpp
+class MyClass {
+
+public:
+
+    // Tekerişim noktası
+    static MyClass& instance() {
+        static MyClass inst;
+        return inst;
+    }
+
+    // Kopyalamayı engelle — başka nesne oluşturulmasın
+    MyClass(const MyClass&)            = delete;
+    MyClass& operator=(const MyClass&) = delete;
+
+private:
+    // dışarıdan oluşturulamaz.
+    MyClass(){};
+
+};
+
+
+// Kullanım 
+
+MyClass::instance().do_something();
+
+```
+
+#### Singleton patern
+
+```
+
+
+```
+
+
+```
+
+
+```
+
+
+```
+
+
+```
+
+
+```
+
+
+```
+
+
+```
+Singleton → Observer → Strategy → Factory
+     ↓
+Builder → Command → Decorator
+     ↓
+Proxy → State → Composite
+
+```
+
+
+
+```
+
+
+```
+
+
+
+
