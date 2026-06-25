@@ -1475,6 +1475,16 @@ Tip degistirme :
 ```
 
 
+
+association
+	aggregation
+		composition
+	     dependency	
+
+has a relationship
+
+
+
 ## Operator overloading
 
 C++ dilinde bir sınıf nesnesi bir operatörün operandı olduğunda derleyici dilin kurallarına göre operatörün operandı olmuş sınıf nesnesi ifadesini bir fonksiyon çağrısına dönüştürüyoryani ortada doğrudan fonksiyon çağrı operatörü yok ama kodun anlamı derleyicinin bir fonksiyona çağrı yapması bunlara operator functions deniliyor
@@ -1726,7 +1736,7 @@ namespace Nec{
 }   
 ```
 
-Aynı isimli isimalanları birleşir farklı yerde tanımlanmış olsalar bile.
+Aynı isimli isimalanları birleşir farklı yerde tanımlanmış olsalar bile. Çümkü derleyici bir namespaceden sonra tekrar aynı tanımı görürse bunları otomatik birleştirir. Yani namespacelerde kümülatif etki var
 
 ```cpp
 namespace Nec{
@@ -1736,6 +1746,16 @@ namespace Nec{
 namespace Nec{
 	void func(double); // Func OVerloading burası
 	}
+```
+
+```cpp
+namespace ali{
+	int x = 10;
+}
+
+namespace ali{
+	int x = 21;  SENTAKA HSTASI. Aynı namespacede aynı tanım 2 defa yapılmış.
+}
 ```
 
 İsim alanındaki ismi bulmak için scope resolution operatörü kullanılır.
@@ -1779,13 +1799,1918 @@ int main()
 
 ```
 
+---
 
 ```cpp
+//.h
+namespace prog{
+	class Nec{
+		void func();
+		void foo();
+	};
+}
+
+#include "///.h"
+
+```
+
+1. ihtimal cpp filedan aşağıdaki gibi tanımlıyoruz.
+```cpp
+void prog::Nec::func()
+{
+	//
+}
+```
+
+2. ihtimal ise cp file da da bunu prog namespace içinde tanımlayabiliriz.
+Bildirim ile tanım aynı namespace içinde oluyor artık bu durumda.
+
+```cpp
+namespace prog{
+	void Nec::func()
+	{
+	///
+	}
+}
+
+```
+
+---
+
+Nested namespace ler çok kullanılıyor.
+
+```cpp
+namespace nec{
+	namespace pro{
+	}
+}
+```
+
+C++17 de ekleme yapıldı dile. eskiden şöyleydi
+
+```cpp
+namespace A{
+	namespace B{
+		namespace C{
+
+		}
+	}
+}
+```
+
+Yenisi
+
+```cpp
+namespace A::B::C{
+	int x = 10;  // x burada a nın içindeki b nin içindeki c nin içinde :DD:D:
+}
+
+namespace A::B{
+	int y;
+}
+
+namespace A{
+	int z;
+}
+
+int main()
+{
+	A::z = 10;
+	A::B::y = 20;
+	A::B::C::x = 123;
+}
+```
+
+---
+Bir namespace içindeki isimlerin, bir namespace ismiyle nitelenmeden ilgili namespace te aranıp bulunmasını sağlayan 3 adet araç var.
+
+1 - Using Decleration
+2 - Using Namespace Decleration
+3 - ADL(Argument Depended Lookup)
+
+**1 - USING DECLERATION**
+
+NOT :
+- En uygunu hiç kullanmamak.
+- Kullanılacaksa local (en dar) scopeta kullanmak
+- En son ihtimnal namespace scopeta kullanmak.
+
+NOT :
+Başlık dosyası içinde asla using bildirimi veya using namespace bildirimi yapmayın.
+Bunu include eden herkeste de bu bildirim olur.Bu durumda da namespace lerin varlık sebebi ortadan kalkar.
+
+Bu çok yerde overload edilmiş bir keyword.Farklı amaçlarlada kullanılıyor.
+Biz type alias olarak kullanıldığını gördük
+
+```cpp
+using word = int;
+```
+
+
+using in yapıp typedef in yapamadığı şeyler var. bunlar tempalte lerde ve generic programlamada önemli oluyor.
+
+Bir de using in sınıf içinde kullanımı var.
+
+```cpp
+class{
+	using base::x;
+};
+```
+
+Sentaks :
+
+```cpp
+using namespace_name::object_name;
+
+```
+
+Bu artık namespace nin içindeki objenin direk ismi ile kullanılabilmesini sağlıyor.
+
+
+```cpp
+namespace Ali{
+	int x;
+}
+
+using Ali::x; // artık x yazınca Ali::x e erişiriz.
+
+int main()
+{
+	x = 5;
+}
+
+```
+
+---
+
+using bildiriminin bir kapsamı var. using bildiriminin kapsamı, namespace içinde kullanılırsa namespace scope, block içinde kullanılırsa block scopetur.
+
+```cpp
+namespace Ali{
+	int x;
+}
+
+using Ali::x; // artık x yazınca Ali::x e erişiriz. 
+
+void func()
+{
+	x = 35;
+}
+
+void foo()
+{
+	x = 22;
+}
+
+
+int main()
+{
+	x = 5;
+}
+```
+
+hepsinde x e erişilir.Derleyici isim aramayla using bildirimini görecek.Bunun ali namespace i içinde olan x olduğunu anlayacak.
+
+```cpp
+namespace Ali{
+	int x;
+}
+
+
+void func()
+{
+	using Ali::x;
+	x = 35; BU SCOPETA x BULUNUR. LEGAL KOD.
+}
+
+void foo()
+{
+	x = 22; SENTAKS HATASI
+}
+
+
+int main()
+{
+	x = 5; SENTAKS HATASI
+}
+```
+
+Using bildirimini block veya namespace scopeta yapılabilir. blockta yapılırsa ilgili blockta o isme ulaşılır global yapılırsa heryerden ulaşılabilir.
+
+---
+
+Using bildirimninin 2. önemli özelliği, bildirilen isim, bildirimin yapıldığı isim alanına inject ediyor.
+Enjekte etmesi nedemek?
+
+```cpp
+namespace Ali{
+	int x;
+}
+
+void func()
+{
+	using Ali::x;
+	int x = 25;	// burası doğrudan SENTAKS HATASI.Zaten x değişkeni var. using sanki bu scopeta x i bildirmiş gibi davranıyor
+}
+```
+
+Aşağıdaki gibi olsaydı sorun yoktu.
+
+```cpp
+namespace Ali{
+	int x;
+}
+
+using Ali::x;
+void func()
+{
+	int x = 25;	// Burası geçerli.
+	x = 44;	//ismi bulacak ve arama yerel değişken olan x e yapıldı.içerideki x dışarıdakini maskeledi.
+	
+	Ali::x = 55; yine kullanılabilir.
+}
+```
+
+Başka bir örnek. 
+
+``` cpp
+namespace Ali {
+	int x;
+}
+
+int x = 25;	
+using Ali::x; // Bu bildirim artık hata oldu.
+
+void func()
+{
+
+}
+```
+
+---
+
+```cpp
+namespace Ali {
+	int x;
+	int y;
+}
+
+Eskiden
+using Ali::x;
+using Ali::y
+
+YENİ - C++17
+using Ali::x,Ali::y;
+
+int main()
+{
+	x = 23;
+	y = 98;
+}
+```
+
+---
+
+**2 - USING NAMESPACE BİLDİRİMİ**
+Aşağıdaki isimlerin herbirini nitelemeden kullanmak istiyoruz
+
+```cpp
+namespace Ali{
+	int x;
+	int y;
+	int z;
+	////
+}
+```
+
+2 yol var.
+1 - tek tek using bildirimi.
+2 - using namespace i kullanmak.
+
+```cpp
+namespace Ali{
+	int x;
+	int y;
+	double z;
+}
+
+using namespace Ali; // Bunu yazınca artık, nerede bu bildirim yapıldıysa, o scopeta x,y ve z direkt olarak görünür durumda.
+
+void func()
+{
+	x = 5;
+}
+
+void foo()
+{
+	x = 56;
+}
+
+int main()
+{
+	x = 234;
+}
+```
+
+Sanki Ali namespace i yorum satırı yapıldı ve içindekiler dışarı çıkartımış gibi.
+
+---
+
+```cpp
+namespace Ali{
+	int x;
+	int y;
+	double z;
+}
+
+
+void func()
+{
+	using namespace Ali; // func scope ta artık ali namespace içindeki isimlere ulaşırım.
+	x = 5;
+}
+
+void foo()
+{
+	x = 56; //SENTAKS HATASI. Bu scope ta değil. bunu kapsayan scope tada değil.o yüzden sentaks hatası
+}
+
+int main()
+{
+	x = 234; //SENTAKS HATASI. Yukarıdaki ile aynı.
+}
+```
+
+DİKKAT!!!!!!!!!!!!!!!!!
+BURADA  USİNG BİLDİRİMİ İLE FARKLI DAVRANIYOR inject olmuyor yani. !!!!!!!!!!!
+DİKKAT ET !!!!!!!!!
+
+```cpp
+namespace Ali{
+	int x;
+	int y;
+	double z;
+}
+
+
+void func()
+{
+	using namespace Ali; 
+	int x = 10;	// HATA YOK.Buradaki x diğerini maskeliyor.  using Ali::x; olsaydı 186. satırdaki gibi. SENTAKS HATASI.
+	x = 5; // buda yerel x
+
+	Ali::x; burada da Alideki x e erişiyoruz.
+}
+```
+
+!!USING BILDIRIMLERI BOL KESEDEN KULLANILMAMALI çünkü.
+
+```cpp
+#include module_a
+#include module_b
+
+a dan gelen 
+namespace a{
+	int ax;
+	int x;
+}
+
+b den gelen
+namespace b
+{
+	int bx;
+	int x;
+}
+
+using namespace A;
+using namespace B;
+
+int main()
+{
+	ax++;
+	bx--; //ikiside nitelemeden kullanılabilir.
+	
+	x; //Burada ambigiuty hatası olur. İkisinde de x var.
+
+	A::x;
+	B::x; // ile bunlar aşılabilir.
+}
+```
+
+
+```cpp
+class Myclass
+{
+	void func()
+	{
+		using namespace std;   // belki böyle kullanılır ama önermiyor hoca.
+	}
+}
+```
+
+NOT : CLASS DEFIBITION İÇİNDE USING NAMESPACE STD; BİLDİRİMİ YAPILAMAZ.YA LOCAL DÜZEYDE YA DA NAMESPACE İÇİNDE YAPILIYOR.
+
+---
+
+**3 - ADL(ARGUMENT DEPENDENT LOOKUP)**
+
+KURAL: EĞER BİR FONKSİYON ÇAĞRISINDA FONKSİYONA ARGÜMAN OLARAK GÖNDERİLEN İFADE, BİR NAMESPACE İÇİNDE TANIMLANANTÜRLERDEN BİRİNE İLİŞKİN İSE, O ZAMAN BU İSİM NORMAL ARANDIĞI YERİN DIŞINDA BU İSMİN AİT OLDUĞU TÜRÜNAİT OLDUĞU NAMESPACE İÇİNDE DE ARANIR.BU DURUMDA İSİM NEREDE DE ARANACAK? BU İSMİN AİT OLDUĞU SINIFIN TANIMLANDIĞI NAMESPACE İÇİNDE.
+
+Amlamaman normal alt iki örnege bak.
+
+
+```cpp
+namespace nec{
+	class Myclass{
+		///
+	};
+
+	void foo();
+	void func(int);
+}
+
+int main()
+{
+	foo(); // ismi arar bulamaz hata verir.
+	nec::foo(); // ismi arar ve bulur hata yok.
+
+	func(12); //sentaks hatası.Bulamadı yine
+}
+```
+
+
+```cpp
+namespace Nec{
+	class Myclass{
+		///
+	};
+
+	void foo(Myclass m);
+	void func(int);
+}
+
+int main()
+{
+	Nec::Myclass m;
+	
+	foo(m); // SENTAKS HATASI DEĞİL. :D:D	Nec::foo() diye çağrılmadığı halde sentaks hatası değil.
+
+	func(4); //SENTAKS HATASI.
+}
+```
+
+func(a,b,c);
+diyelimki a, a namespace içinde, b b namespacei içinde, c  c namespace i içinde tanımlanan türlerden olsun. bu durumda func ismi 3 namespace içinde de aranır.
+
+---
+
+```cpp
+#include <vector>
+
+namespace Nec{
+	class Myclass{
+		///
+	};
+
+	void foo(Myclass m);
+	void func(std::vector<Myclass>);
+}
+
+int main()
+{
+	// Func ın parametresi Myclass türünden mi ? hayır Vector türünden
+	std::vector<Nec::Myclass> myvec;
+	//foo yu myvec ile çağırırsam ADL ile foo ismi bulunur mu bulunmaz mı?
+}
+
+```
+
+NEDEN BULUNDU?
+Tanıma dikkat!
+Bir fonksiyona gönderilen argüman bir namespace içinde tanımlanan türdense demedik.
+bir namespace içinde tanımlanan türe ilişkin ise dedik. Bu sebeple bulundu
+
+```cpp
+namespace Nec{
+	class Myclass{
+		///
+	};
+
+	enum color {Red,Green,White};
+	void func(color);
+}
+
+int main()
+{
+	func(nec::color::black); //SENTAKS HATASI YOK.GEÇERLi.
+}
+```
+
+Bir öncekinde de bunda da namespace içinde var olan bir tür kullanıldı parametrede.Adı geçti.
+Dolayısı ile türe ilişkin oldu. Bu sebeple o türü argüman verince bulunduğu namespace de de arıyor yani ADL oluyor.
+
+---
+
+```cpp
+namespace Nec{
+	class Myclass{
+		///
+	};
+
+	typedef int Word;
+	void foo(Word);
+}
+
+int main()
+{
+	nec::Word myword{};
+	foo(myword);		// SENTAKS HATASI
+}
+
+```
+
+ADL typedef isimleri için geçerli değil.Burada yeni bir tür tanımlamıyoruz çünkü. buradaki int türü..
+
+---
+
+```cpp
+namespace Nec{
+	class Myclass{
+		///
+	};
+
+	typedef Myclass Ctype;
+	void foo(Myclass);
+}
+
+int main()
+{
+	nec::Ctype mx;
+	foo(mx);		// ŞİMDİ GEÇERLİ.
+}
+```
+
+typedef ismi eğer sınıf içinde belirlenen türe ilişkin ise ADL DEVREYE GİRER.
+Eğer int veya double gibi bir türe ilişkin ise ADL devreye girmez bir öncekinde olduğu gibi.
+typedef tanımlanan bir türe ilişkin olmalı.
+
+---
+
+```cpp
+include iostream
+include vector
+include string
+include algorithm
+
+int main()
+{
+	std::vector<std::string> svec;
+	// code
+	auto iter = find(next(svec.begin()),prev(svec.end()),"ali"); 
+	auto iter = std::find(std::next(svec.begin()),std::prev(svec.end()),"ali"); //Normalde böyle olmalıydı ama nasıl oldu da 
+// yukarıdaki çalıştı.
+
+}
+```
+
+Nedeni?
+next i svec.begin() ile çağırdık, bu func ın return dğeeri türü vector "string:iterator tür olduğuna görebu türde std namespace i içinde tanımlanan bir türe ikişkin olduğu için std namespace i içinde de arayacak.aynısı prev içinde geçerli.
+
+Peki next(svec.begin()) in geri dönüş değeri türü ne ?
+bununda return değeri bir iterator türü. o zaman finda da gönderidğim argümanda std namespace i için tanımlanan bir  türe ilişkin olduğu için find isminide std namespace i içinde arar.
+
+---
+
+```cpp
+namespace A
+{
+	class Myclass{	}
+	void func(Myclass);
+}
+
+void func(A::Myclass);
+
+int main()
+{
+	A::Myclass ax;
+	func(ax);		//BURADA AMBIGIUTY VAR. FUNC İSMİ HEM GLOBALDA HEMDE NAMESPACE A İÇİNDE BULUNDU.
+// ÖNCELİK YOK BURADA. İKİ TANE FUNC BULDU.
+}
+```
+
+ADL NEDEN VAR?
+
+operator overloading için var. cout<< "asd"; burada bile ADL VAR.
+
+std::cout << "merhaba" << endl; // endl ismi adl ile bulunur mu bulunmaz mı? BULUNMAZ
+endl bir func ismi ve bu bir func a argüman olarak gönderiliyor. 
+operator<<(std::cout, "Merhaba Dunya").operator<<(std::endl)
+
+endl(std::cout); // endl ismi bulunur. endl std namespace içinde tanımlanan function. ona gönderdiğimiz argüman std namespace içindeki bir türe ilişkin olduğundan, endl ismi std namespace içinde de arancak.
+
+ENDL NEDEN SIK KULLANILMAMALI
+endl std namespace i içinde bulunan bir fonksiyon. endl bir maniplator.
+std::cout << "Merhab Dunya" << endl; // std::endl denmeyince hata olur neden?
+
+operator<<(std::cout, "merhaba dunya").operator<<(std::endl); // açılmış hali bu.
+endl yi fonksiyona gönderiyoruz bu yüzden std::endl olarak yazmamız gerekiyor.
+
+fonksiyonu endl ye argüman olarak gönderelim
+endl(std::cout); endl ismi bulunru mu bulunmaz mı? BULUNUR çünkü endl std namespace i içinde bildirilen bir function
+Ona gönderdiğim argüman std namespace i içindeki türe ilişkin olduğu için endl ismi std namespaceinde de arancak.
+ADL yani.
+endl orijinalinde function template
+``` cpp
+std::ostream& Endl(std::ostream& os)
+{
+	os.put('\n');
+	os.flush(); C deki gibi flush işlemi yapıyor.
+
+	return os;
+}
+```
+
+yukarısı <<"\n"; bununla aynı işlemi yapmıyor. endl her kullanıldığında buffer flush ediliyor.
+hatta << '\n'; eb iyi yolu bu. "\n" bu bir string literali ve static ömürlü bir dizi. endl de verim kaybıda var.
+
+Eğer cout << endl; dersek veya cout.operator<<(endl); //Derleyicinin burada inline expansion yapma şansıda yok. Ciddi verim kaybı.endl kullanma !! :D:D:D:D endl(cout); demiş oluyoruz.
+
+---
+
+```cpp
+//.h
+namespace A
+{
+	class Myclass
+	{
+	public:
+		void func();
+		//member func
+
+	};
+
+	void foo(Myclass);
+}
+
+//.cpp
+int main()
+{
+	A::Myclass ax;
+	ax.func(); // geçerli
+	foo(ax);  //geçerli.
+}
+```
+
+---
+
+
+INLINE NAMESPACE C++17 DE GELDİ.
+
+```cpp
+namespace A
+{
+	namespace B
+	{
+		namespace C
+		{
+			int x;
+		}
+		using namespace C;
+	}
+	using namespace B;
+}
+using namespace A;
+
+int main()
+{
+	x = 25; artık bu durumda direkt görür.
+	
+	// using namespace A; olmasaydı A::x = 40; olurdu
+	// using namespace A ve B; olmasaydı A::B::x = 40; olurdu
+	// using namespace A ve B ve C; olmasaydı A::B::C::x = 40; olurdu
+}
+```
+
+---
+
+```cpp
+namespace A{
+	namespace B
+	{
+		class Myclass {
+		};
+	}
+	void func(B::Myclass);
+}
+
+int main()
+{
+	A::B::Myclass x;
+	func(x); // SENTAKS HATASI.Çünkü x b namespace i içinde ama b functionu A namespace içinde tanımlanmış.Burası garip.
+	
+	//B den sonra using namespace B; yapsak bile yine hata devam ediyor.
+}	
+
+```
+
+---
+
+inline namespace C bildirimde adeta sanki biz bu namespace çıkışında using namespace c yazmışım gibi c namespace içindeki isimler doğrudan B namespace içinde visible hale geldiler.
+B yide inline yazarsak öncekindeki gibi olur. b namespace içindekiler A içinde doğrudan görülür.
+A da yapılabilir....
+
+```cpp
+namespace A
+{
+	int a;
+	namespace B
+	{
+		inline namespace C
+		{
+			int x;
+		}
+	}
+}
+
+int main()
+{
+	A::B::x = 23; //geçerli
+	A::x = 33; // geçersiz
+}
+
+```
+
+inline ile çözüm:
+
+```cpp
+namespace A{
+	int a,b;
+	inline namespace B
+	{
+		int x,y;
+		class Myclass {
+		};
+	}
+
+	void func(B::Myclass);
+}
+
+int main()
+{
+	A::Myclass m;
+	func(m); // inline yazmayınca ilk örneklerde bu hata idi.
+
+}
+```
+
+Ornek inline namespaceler:
+
+literals namespace ve string_literals namespace inline namespace
+
+```cpp
+#include <string>
+#include <chrono>
+
+int main()
+{
+	std::literals::string_literals::s; s bir nesne, diğerleri nested namespace
+	std::literals::s; bunlarda nested namespace. hatta inline namespace kanıtı da s in kullanılabilmesi.
+	std::s; burada bile görülüyor :D:D
+	std::chrono::milliseconds
+}
+
+
+```
+
+```cpp
+namespace A
+{
+	inline namespace B{
+	void func();
+	}
+	inline namespace C{
+	void foo();
+	}
+
+}
+
+int main()
+{
+	A::func();
+	A::foo(); ikiside geçerli.
+}
+```
+
+---
+
+INLINE NAMESPACELERİN BİR AVANTAJIDA VERSION KONTROLUNDE KULLANILMASI
+
+Biz belirli kodlarda  belirli kodsal varlıkları versiondan versiona değiştirmek istiyoruz.
+Gerekirse bir versiondakini gerekirse diğer versiondakini kodları değiştirmeden kullanmak istiyruz.
+Bunu sağlıyor.
+
+```cpp
+
+
+namespace project{
+	
+	namespace Version1
+	{
+		class Myclass{
+		
+		};
+	}
+
+	namespace Version2
+	{
+		class Myclass{
+		
+		};
+	}
+
+}
+
+int main()
+{
+	Project::Version1::Myclass
+	Project::Version2::Myclass
+	// bu şekildede ikisinede erişilir.
+
+}
+
+
+```
+
+Şimdi kullanmak istediğimiz versionun namespaceini inline olarak tanımlarsak
+kapsayan namespacetede visible hale gelir artık bu.
+
+```cpp
+
+
+
+
+namespace project{
+
+	inline namespace Version1
+	{
+		class Myclass{
+
+		};
+	}
+
+	namespace Version2
+	{
+		class Myclass{
+
+		};
+	}
+
+}
+
+int main
+{
+	project::Myclass m; // inline tanımlandığı için namespace version1, içindeki tüm isimler onu kapsayan namespacede visibledır.
+}						// tam terside yapılabilirdi. version2 inline olursa bu seferde version2 deki myclass ı kullanabiliriz.
+						// ikiside aynı anda inline olsaydı, ambigiuty olurdu.
+```
+
+---
+
+
+Conditional compiling ilede birleştirilip kullanılabilir.
+
+```cpp
+#define Version_1 // dersem 1. ifdef koşulu doğru version1 inline olacaktı.
+#define Version_2 // dersem 2. ifdef koşulu doğru version2 inline olacaktı.
+
+
+#define Version_1   // ben version1 i inline ederek onun myclass sınıfını kullandım
+
+namespace project{
+	
+
+	#ifdef VERSION_1
+		inline
+	#endif
+	namespace Version1
+	{
+		class Myclass{
+
+		};
+	}
+
+	#ifdef VERSION_2
+		inline
+	#endif
+	namespace Version2
+	{
+		class Myclass{
+
+		};
+	}
+
+}
+
+int main()
+{
+	Project::Myclass m;
+}
+```
+
+---
+
+**UNNAMED NAMESPACE**
+Sadece ilgili kaynak dosyada geçerli olan ve bir using bildirimi olmadan doğrudan sanki inline keyword ile tanımlanmış gibi,
+bu namespacedeki isimleri bunu kapsayan namespacede yani global namespacede kullanabileceğimiz bir özellik.
+
+``` cpp
+namespace{
+	int x;
+	double dval;
+}
+
+int main()
+{
+	x = 6; // derleyince hata vermedi.
+}
+```
+
+Kural : ilgili kaynak dosyada global namespacede visible hale geliyor. Modern c++ öncesinde de kullanılan bir araç.
+Ne işe yarıyor?
+Bu namespace in ismi var sayalım. hemen çıkışında using namespace ismi; olduğunu varsayalım.
+Ör:
+
+```cpp
+
+
+namespace name1
+{
+	int x;
+	double dval;
+}
+using namespace std;
+
+int main()
+{
+	x = 5;
+}ait 
+
+```
+
+
+Bunları yapıyor aslında unnamed namespace
+Neden kullanalım?
+- UNNAMED NAMESPACE LER INTERNAL LINKAGE A AIT.
+	- EXTERNAL LINKAGE = FARKLI KAYNAK DOSYALARDA BİR İSİM AYNI VARLIĞA İŞARET EDİYORSA BUNA EXTERNAL LİNKAGE DENİR.
+	- INTERNAL LİNKAGE = O İSİM SADECE O KAYNALK DOSYADA KULLANILDIĞINDA AYNI VARLIĞI GÖSTERİYOR.AYNI İSİM BAŞKA KAYNAK DOSYADAmBAŞKA BİR VARLIK OLABİLİR.
+
+
+External linkage = tek obje, farklı TUlardan aynı sembol.
+Internal linkage = aynı isim farklı TUlarda farklı objeler.
+
+C++’ta inline = header’a tanım koyabilmenin yolu (tek obje olacak şekilde).
+Header’da static int val = 2324; → her TU kendi kopyasını üretir → bu yüzden “farklı değişkenler” olur.
+
+Modern c++ öncesinde eklenildi.
+static in kullanılıp internal linkage a ait demek deprecated oldu
+Bunun yerine isimsiz namespace kullanıytoruz.
+
+
+```cpp
+namespace
+{
+	//artık namespacedeki tüm isimler iç bağlantı internal linkage a ait.
+}
+```
+
+değişken function tür isimleri konulabiliyor.
+
+---
+
+Not: const nesnelerde bağlantı kuralı C den farklı
+const int x = 10; bu global scopeta ise,C++ ta x internal linkage a ait.
+
+```cpp
+nutility.h
+const int x = 10;
+void fx();
+
+
+nutility.cpp
+#include "nutility.h"
+#include <iostream>
+
+void fx()
+{
+	std::cout << "&x = " << &x<<"\n"; //const nesnelerin adresi alındığında derleyici onlara yer ayırmak zorunda.
+}					  // adresini almazsak, kod içinde sabit gibi kullanırsak compiler yer ayırmak zorunda değil.
+
+main.cpp
+#include "nutility.h"
+#include <iostream>
+
+int main()
+{
+	fx(); // buradaki x adres ile
+	std::cout << "&x = " << x << "\n"; //buradaki x in adresi farklı çünkü bunlar ayrı nesneler.const ile tanımlanınca internal linkage
+}
+```
+
+
+---
+
+ÇOKOMELLİ
+
+
+C ile C++ ın internal linkage olayı farklı.
+C de kod file da static yapıyorduk. C++ ta header fileda bildirebiliyoruz .ama farklı nesneler oluyor bu değişkenler.
+TEST : 
+header fileda const veya static ile tanımlayıp tüm file lardan include edince adresler farklı.
+Her bir code file için farklı bir nesne.
+
+inline yapınca ise aynı nesne. inline a alternatif C style olarak yazmak. headerda extern bildirimi
+onu headerı include eden code file da ise tanım.
+
+---
+
+**BIRDE BU DEĞIŞKENI INLINE OLARAK TANIMLAYALIM**
+
+inline const int x = 10;
+```cpp
+nutility.h
+inline const int x = 10;
+
+nutility.cpp
+#include "nutility.h"
+
+main.cpp
+#include "nutility.h"
+
+
+nutility.h
+void fx();
+
+nutility.cpp
+#include "nutility.h"
+#include <iostream>
+
+void fx()
+{
+	std::cout << "&x = " << &x<<"\n"; //const nesnelerin adresi alındığında derleyici onlara yer ayırmak zorunda.
+}										// adresini almazsak, kod içinde sabit gibi kullanırsak compiler yer ayırmak zorunda değil.
+
+main.cpp
+include ları yap
+
+int main()
+{
+	fx(); // buradaki x adres ile
+	std::cout << "&x = " << x << "\n"; //değişken inline olunca bu değişkenden bir tane olması garantiydi.Bu sefer aynı adresi verdi
+}
+
+```
+
+```cpp
+
+nutility.h
+int foo();
+void fx();
+const int x = foo();
+
+nutility.cpp
+void fx()
+{
+	std::cout <<"&x = " << &x << "\n";
+} 
+
+int foo()
+{	
+	std::cout << "foo()\n";
+	return 1;
+}
+
+main.cpp
+include nutility.h ve iostream
+main()
+{
+	// bunu boş olarak çalıştırınca birkaç tane "foo()" yazısı göreceğiz.
+	//çünkü internal linkage ve her include eden kendi x ini init ediyor.
+	//inline olsaydı 1 adet foo() görecektim
+}
+
+
+```
+
+Özetle = const değişkenler global olması durumunda internal linkage a ait.bir const değişekenin tanımını header file koyunca
+ODR ihlali olmuyor ve bunu include eden her kod dosyasında ayrı bir değişken meydana geliyor.
+
+---
+
+hem main.cpp de hemde neco.cpp de aşağıdaki tanım var.
+
+```cpp
+namespace
+{
+	int x = 23;
+}
+```
+
+
+Buradaki değişkenler bu durumda farklı oluyor. Internal linkage a konulmak istenen nesneleri isimsiz bir isim alanına koy !!!
+
+---
+
+Modern C++ öncesinden gelen bir araç
+Biz biir header file ile dışarıya sunacağımız isimleri bir namespace içinde versek
+Aşağıdaki isimlerin artık çakışması riskini kesin olarak ortadan kaldırmış olur muyuz
+
+```cpp
+namespace neco{
+	//
+}
+
+```
+
+%99 çözüyor.%1 çözemiyor :D:D
+
+neco burada namespacein kendi ismi, bu isimde tek olmak zorunda. Kod dosyasında neco başka isimlerle çakışabilir.
+Buna karşı önlem almakta mümkün. Bir eş isim alias bildirilebiliyoruz.
+
+Türlere de eş isim bildirimi legal.Buradaki sentaksa namespace alias deniyor.
+
+```cpp
+namespace neco_project
+{
+	int x,y;
+}
+```
+
+namespace nec = neco_project;
+tabi bu bildirimin olması için nec visible olmalı.
+
+```cpp
+int main()
+{
+	neco_project::x = 10;
+	nec::x = 20;  //aynı anlamdalar.
+}
+```
+
+---
+
+nested namesapceler içinde type allias verilebiliyor.
+
+```cpp
+int main()
+{
+	namespace rgc = std::regex_constants;
+
+	std::regex_constants::egrep;
+	rgc::egrep;
+}
+```
+
+```cpp
+namespace ali::veli::hasan::huseyin
+{
+	int x = 10;
+}
+```
+
+```cpp
+int main()
+{
+	ali::vel::hasan::huseyin::x;
+	namespace nec = ali::vel::hasan::huseyin;
+	nec::x;
+
+}
+```
+
+
+
+
+## Nested Types / Types members
+
+Sınıfların memberları 3 temel kategoriye ayrılır.
+- Data Members
+- Member Functions
+- Type Members - Nested Type - Member Type
+
+Bildirimi sınıfın içinde yapılan türlere o sınıfın memberı olan tür deniyor.
+C++ ta std kütüphane olmak üzere çok sık kullanılıyor.
+
+Sınıfın içinde bildirimi yapılan türler:
+
+a - Başka bir sınıf olabilir.
+b - Enum type olabilir. enum Color {red,blue};
+c - Bir tür eş ismi olabilir. typedef veya using olabilir.
+	typedef int word;
+	using word = int;
+
+NOT: Using bildirimlerinin dile eklenmesinini gerçek nedeni, bu şekilde yapılan bildirimerin	template hale getirilebilmesidir. Böyle template lere	Alias template deniyor.
+
+---
+
+İkinci classı namespace yerine class içinde bildirince fark oluyor mu? Evet.
+
+```cpp
+class Myclass{
+	public:
+	class Nested{
+		
+	};
+};
+```
+
+Burada artık myclass türünü nitelememiz lazım.
+
+```cpp
+int main()
+{
+	Nested nx; // Burası sentaks hatası.
+	Myclass::Nested nx;	// Burası Geçerli.
+}
+```
+
+Access control Burada sözkonusu tabiki.
+
+```cpp
+class Myclass{
+		
+	class Nested{
+		
+	};
+};
+
+```
+
+Myclass::Nested x: SENTAKS HATASI.Private eleman çünkü.Access controle takıldık.
+
+---
+**Bazı Karmaşık İsim arama  Kurallar**
+
+Class definition için de isim ararsan kullandığın ismi kod alanın başından 
+bildirime kadar olan kısma bakıyor.Bulamazsa namespace scopetan classa kadar bakıyor.
+
+```cpp
+class Myclass{
+	word wx;		// hata.isim arama hatası.
+	typedef int word;
+
+};
+```
+
+```cpp
+class Myclass{
+	typedef int word;
+	word wx;  //ARTIK HATA DEĞİL.
+	
+};
+
+```
+
+```cpp
+struct Word{
+};
+
+class Myclass{
+	
+	Word wx;   // burası wordu yukarı doğru arar. struct olan Word türünden wx oldu. int değil.
+	typedef int word; // burası yukarıda olsaydı eğer, word wx bildiriminde, word int olacaktı.
+
+};
+```
+
+
+```cpp
+struct Word{
+};
+
+class Myclass{
+
+	typedef int word;
+	::Word wx; // burada namespace scopetaki struct olan Word tür.
+
+};
+```
+
+İnline olarak tanımlanan functionlar buna kurala dahil değil.
+
+```cpp
+class Myclass{
+	void func()
+	{
+		Word w; //Burası geçerli. İnline funclar kurala dahil değil demiştik.
+	}
+
+	typedef int Word;
+};
+```
+
+
+```cpp
+typedef long Word;
+
+class Myclass{
+	
+	Word wx;	// buradaki Word, long 
+	
+	void func()
+	{
+		Word w; //Ama buradaki w ise int türden.
+	}
+
+	typedef int Word;
+};
+```
+
+---
+
+Bir sınıfın bir başka sınıf türü elemanı olması, bu türden bir veri elemanına
+sahip olduğu anlamına gelmiyor.
+
+Yani A nın herhangibir data memberı yok.
+
+```cpp
+class A{
+	class Nested{
+	
+	};
+};
+```
+
+Ama A nın nested türden bir memberıda olabilirdi.
+
+```cpp
+class A{
+	class Nested{
+
+	};
+
+	Nested nx; //burası artık veri elemanı.
+};
+```
+
+---
+NESTED TYPE A SAHIP SINIF, BU TYPE IN PRIVATE BÖLÜMÜNE ERIŞEMEZ
+Enclosing class = Nestedin tanımına sahip olan sınıfa enclosing class deniyor.
+
+```cpp
+class A{
+	class Nested{
+	private:
+		void func();
+	};
+
+	void foo()
+	{
+		Nested nx;
+		nx.func(); // BURASI SENTAKS HATASI.NESTED OLSA BİLE PRIVATE BÖLÜMÜ KORUMA ALTINDA
+	}
+};
+```
+
+İÇERIDEKI CLASS TAN ENCLOSING CLASS IN PRIVATE KISMINA ERIŞMEYE ÇALIŞACAĞIZ. 
+BURADA ACCESS CONTROL UYGULANMIYOR.
+
+```cpp
+class A{
+
+	void foo();
+	static void sf();
+	static int sx();
+
+	class Nested{
+	private:
+		void func()
+		{
+			A ax;
+			
+			ax.foo();
+			sf();	
+			sx = 5;
+		}
+	};
+
+};
+```
+
+Enclosing type ın private memberlarına erişebliyorum ve burada acess
+Control uygulanmıyor.Modern C++ öncesinde bu kodlar sentaks hatasıydı.
+
+```cpp
+class A{
+
+	class Nested{
+	private:
+		void func()
+		{
+			A ax;
+
+			ax.foo(); // Memberlar aşağı alındı ve isim arama halen daha geçerli.
+			sf();
+			sx = 5;
+		}
+	};
+
+	void foo();
+	static void sf();
+	static int sx();
+};
+```
+
+```cpp
+class A{
+	
+	int mx;
+
+	class Nested{
+	private:
+		void func()
+		{
+			auto n = sizeof(mx); // GEÇERLİ.sizeof unevaluated contex olduğu için geçerli.
+		}							// mx normalde static olması lazımdı.sınıf nesnesine ihtiyaç vardı
+	};
+};
+```
+
+ÖZETLE:
+NESTED CLASS, ENCLOSİNG CLASS IN PRİVATE BÖLÜMÜNE ERİŞEBİLİR.ORADAKİ İSİMLERİ KULLNABİLİR. DİLİN DİĞER SENTAKS KURALLARINI EZMEDİĞİ SÜRECE.
+
+```cpp
+class A{
+	class Nested{
+		
+	};
+
+public:
+	static Nested foo();
+};
+
+int main()
+{
+	auto x = A::foo(); // GEÇERLİ.Nested private ama kullanmıyoruz. Sadece function return type 
+						// olarak auto tarafından algılanıyor.İsmi kullanmadık.Kullansaydık bir access control uygulanacaktı.
+
+	A::Nested y = A::foo(); // burası sentaks hatası mesela.
+}
+```
+
+---
+
+**NESTED CLASSLARDA FONKSİYON TANIMLARI**
+
+İnline yapılabilir.
+
+```cpp
+class A{
+	class Nested{
+		void foo()
+		{
+		
+		}
+	};
+
+public:
+};
+```
+
+Bir cpp file de yapılabilir.
+
+```cpp
+class A{
+	class Nested{
+		void foo();		
+	};
+
+public:
+};
+
+
+//.cpp
+void A::Nested::foo()
+{
+	Nested nx; // sınıfın içinde direkt nested türünü kullanabilirim.
+}
+```
+
+
+```cpp
+class A{
+	class Nested{
+		void foo(Nested); //parametreye nested geldi
+	};
+
+public:
+};
+
+//.cpp
+void A::Nested::foo(Nested x)
+{
+	
+}
+```
+
+
+```cpp
+class A{
+	class Nested{
+		Nested foo(Nested); //Return value değeride geldi şimdi
+	};
+
+public:
+};
+
+A::Nested A::Nested::foo(Nested)
+{
+	Nested nx; // sınıfın içinde direkt nested türünü kullanabilirim.
+}
+
+//.cpp
+Nested A::Nested::foo(Nested x) // Bu durumda burası SENTAKS HATASI.Çünkü buradaki return olan Nested func içinde kullanılmadığı için
+{								// standart isim arama kurallarına göre kullanılacak.
+
+}
+
+A::Nested A::Nested::foo(Nested x) // BURASI GEÇERLİ.
+{
+
+}
+
+A::Nested A::Nested::foo(A::Nested x) // BURASI DA GEÇERLİ.PARAMETREDE DE :: KULLANILABİLİR.ZORUNLU DEĞİL. RETURN VALUE DA GEÇERLİ.
+{
+
+}
+
+```
+
+Copy ctor için yazalım.
+
+```cpp
+class A{
+	class Nested{
+		Nested& operator=(const Nested& other)
+		{
+		
+		}
+	};
+
+public:
+};
+
+A::Nested& A::Nested::operator=(const Nested& other)
+{
+//..
+}
+```
+
+---
+ENUM type.
+
+```cpp
+class A{
+public:
+	enum{size = 100};
+};
+
+int main()
+{
+	int x = A::size;// GEÇERLİ
+}
+```
+
+INCPOPLETE type.
+
+```cpp
+class Myclass{
+	class Nested;  // sınıfın dışında bildirmekle sınıfın içinde kullanmak aynı anlama gelmiyor.Erişimde faklılık oluyor.
+	Nested *mp;
+};
+```
+
+---
+PIMP IDIOM
+
+Handle body idiom veya cheshire cat idiyom opaq pointer idiom diye söyleyenler var
+
+Adı pointer implementationdan geliyor.
+Bir geleneksel birde smart pointer idiyomu var.
+Sınıfın Private bölümünü gizliyor. Neden gizlemek isteyelim?
+
+```cpp
+#include "Mint.h"
+#include "Date.h"
+#include "Counter.h"
+
+class nec
+{
+private:
+	Mint mx;	// Eğer bu şekilde nesne oluşturacaksak bu sınıfı incomplete type olarak tanımlayamayız.
+	Date dx;	// complete type olmalı. Pointer olsalardı, incomplete decleration ile çalışır.
+	Counter cx; // static olsalardı, bu bir bildirim olacağından incomplete type olabilirdi.
+};
 
 ```
 
 
 ```cpp
+STATIC OLSUN
+
+class Mint;
+class Date;
+class Counter;
+
+class nec
+{
+private:
+	static Mint mx;	    //	Mint &mx; 
+	static Date dx;		//	Date &dx;
+	static Counter cx; 	//	Counter &cx; bunlarda olabilirdi incomplete type ile.
+};
+```
+
+Yani static değilse pointer veya referans değilse, tanımları tam olarak/Complete type olarak görmeli. Yoksa çok maliyet artırır
+
+Pimple a geri dönelim. Hoca pimple ı her sınıf için önermiyor.
+
+```cpp
+//.h
+class Nec{
+	Nec();
+	~Nec();
+	void func();
+	void foo();
+private:
+	struct Pimpl;
+	Pimpl *mp;
+};
+
+//.cpp
+#include "neco.h"
+#include "mint.h"
+#include "date.h"
+#include "counter.h"	
+
+struct Nec::Pimple{
+	Mint mx;
+	Date dx;
+	Counter cx;
+};
+
+void Nec::Nec() : mp {new Pimpl}
+{
+	//..
+}
+
+void Nec::~Nec() : mp {new Pimpl}
+{
+	//..
+}
+
+
+void Nec::func()
+{
+	//... artık neler yapıacaksa
+	mp->dx; //uyduruorum buralarda
+	++mp->mx;
+		
+}
+```
+
+Dinamik ömürlü nesne yaratıldı. fiziksel olarakta struct nec içerisindeki veri elemanları ayrı yerde.
+sizeof a girmiyor. destructor falanda buna göre tanımlanmalı. pimpl deletede edilmeli
+
+SONUÇ : NESTED TYPE İLE İLİŞKİSİNİ GÖRMEK.  BUNUN DAHA MODERN HALİNİ GÖRECEĞİZ. ESKİ OLANDI BU. GÜNÜMÜZDE TERCİH EDİLEN SMART POINTER OLACAK.
+
+
+
+## Composition
+
+Nesne yönelimli programlamada, problem domainindeki varlıkları temsil eden sınıflar ile temsil etmeye deniyor. 
+Prosedürel programlama paradigmasında(C) ayrıştırma functionlara yönelik, ama nesne yönelimlide arıştırma classlara/sınıflara yönelik
+
+Bazı terimler var. Bunlar sınıflar arasındaki ilişkileri betimliyor.
+
+UML Konusunu öğrenmekte fayda var.Modelleme.
+Nesne yönelimli modellemeye bak. Modelleme dili ? UML?
+Bunlar diagramatic diller, programlama dilleri değil.
+Diagramlar var, sınıf diagramları, akış diagramları.
+Aşağıdaki ilişki türleride UML de karşımıza çıkacak.
+
+Dependancy
+
+Association : Sistemdeki 2 sınıf birbiriyle işbirliği halinde kullanılıyorsa bu sınıflar arasında association vardır.
+	Aggregation : Eğer bu ilişki içindeki sınıflardan biri, diğerinin sahibi olarak onu kulanıyorsa, buna aggregation deniyor. Her aggregation bir associatioBir futbolcu bugün fenerde yarın Gs de. gibi.
+	Composition : Yine bir nesne diğerinini sahibi fakat sahip olan ile olunan nesne arasında ömürsel birliktelik var.Sahip hayata gelince, olunan da gelir.
+				  Sahip ölürse, sahip olunanda ölüyor. Araba perte çıktı motoru da kullanılamaz kendide ise arada composition var.
+				  ama eğer motorunu başka yerde kullanabileceksek aggregation var. Başka bir sınıfı veri elemanı olarak almak denebilir.
+
+
+Containment : bir nesne diğerini eleman olarak alması durumuna deniyor.
+
+Composition bir interface edinme ilişkisi değil. Bir sınıf başka sınıf türden bir ver ielemanına  sahip olunca o veri elemanının interface ini kendi interface ine katmıyor.
+
+```cpp
+class A{
+private:
+	void func();
+	void foo();
+	void f();
+};
+
+class B{
+private:
+	A ma;
+};
+
+int main()
+{
+	B bx;
+
+	bx.func(); //BURASI HATA.İNTERFACE DEVRALINMAZ. KALITIMDA INTERFACE DEVRALINIR.
+}	
+```
+
+En fazla B ye func yazıp. bu func ın diğer class nesnesi ile func çağırması olabilir. Aşağıdaki gibi.
+
+```cpp
+
+class B{
+private:
+	A ma;
+public:
+	void func()
+	{
+		ma.func
+	}
+};
+```
+
+B sınıfı A sınıfı türden bir elemana sahipse, B nin üye functionları içinde elemanı olan A nın private bölümüne erişebilir miyiz?
+
+
+```cpp
+class A{
+private:
+	void func();
+	void foo();
+	void f();
+};
+
+class B{
+private:
+	A ma;
+public:
+	void g()
+	{
+		ma.func(); //Burası hata. Private bölümüne erişim hakkı verilmedi
+		ma.ival; // aynı şekilde hata.
+	}
+};
+```
+
+ELEMANIN PRİVATE BÖLÜMÜ KAPATILMIŞ DURUMDA.FRİENDLİK VEREBİLİR.
+
+```cpp
+class A{
+	void func();
+	void foo();
+	void f();
+	friend class B;	
+};
+
+class B{
+private:
+	A ma;
+public:
+	void g()
+	{
+		ma.func(); // HATA YOK
+		ma.ival; // Legal. hata yok.
+	}
+};
+```
+
+---
+
+Aşağıda owner sınıfının yazdığı default constructor elemanlar default init ettiğine göre, member türünden mx in default init edilmesi, default ctorunun çağrılması demek. Derleyicinin yazdığı destructor ise sınıf türden hayata gelenlerin nesnelerin hayata sırayla veda etmesi demek.
+Mesela aşağıda
+member ctor
+destructor   yazdı 
+
+```cpp
+class Member{
+public:
+	Member()
+	{
+		std::cout << "Member default ctor\n";
+	}
+	~Member()
+	{
+		std::cout << "Member Destructor\n";
+	}
+};
+
+class Owner
+{
+
+private:
+	Member mx;
+}
+
+
+int main()
+{
+	Owner ox;
+}
 
 ```
 
+Sınıfın birden fazla elemanı olsaydı
+
+```cpp
+class Ownber{
+	A ax;
+	B bx;
+	C cx;   //hayata gelme sırası buradaki bildirimdeki sıra
+
+};
+```
+
+Default contructer programlayıcı tarafından yazılmıssa.
+
+```cpp
+// member class tanımlı say
+
+class Owner
+{
+public:
+	Owner()
+	{
+		std::cout << "Owner Ctor\n";
+	}
+private:
+	Member mx;
+}
+
+
+int main()
+{
+	Owner ox;
+}
+
+/*
+ÇIKTI
+-----
+Member default ctor
+Owner Ctor
+member Destructor
+*/
+```
+
+Desstructer yazılırsa.
+
+Aşağıda önce elemanlar mı destroy ediliyor yoksa önce destructor anabloğundaki kod çalışıyorda, bu kodun çalışmasından sonramı
+elemanlar destroy ediliyor. 2. olan
+
+Yani destructor anabloğundaki kodlar çağrılıyor. sonrasında hayata gelmesiyle ters sırada elemanlarında destructoru çağrılıyor.
+
+```cpp
+//member class tanımlı say
+
+class Owner
+{
+public:
+	Owner()
+	{
+		std::cout << "Owner Ctor\n";
+	}
+	~Owner()
+	{
+		std::cout << "Owner Destructor\n";
+	}
+private:
+	Member mx;
+}
+
+
+int main()
+{
+	Owner ox;
+}
+
+
+/*
+ÇIKTI
+-----
+Member default ctor
+Owner Ctor
+Owner Destructor
+Member Destructor
+*/
+```
+
+```cpp
+
+```
